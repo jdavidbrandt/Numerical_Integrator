@@ -1,0 +1,14 @@
+Detecting compiler hash for triplet x64-linux...
+Compiler found: /usr/bin/c++
+The following packages are already installed:
+  * cimg:x64-linux@3.5.5 -- git+https://github.com/microsoft/vcpkg@111fbf3dc8b866fb1b765da43f0b81b108ac8b53
+    matplotplusplus:x64-linux@1.2.1 -- git+https://github.com/microsoft/vcpkg@51c46b79b51c246c051a496bbdfa057aec3860ca
+  * nodesoup:x64-linux@2023-06-12 -- git+https://github.com/microsoft/vcpkg@43d30f8e5e0cd4b45a590027d0c9ea5036f0ba40
+  * vcpkg-cmake:x64-linux@2024-04-23 -- git+https://github.com/microsoft/vcpkg@e74aa1e8f93278a8e71372f1fa08c3df420eb840
+  * vcpkg-cmake-config:x64-linux@2024-05-23 -- git+https://github.com/microsoft/vcpkg@97a63e4bc1a17422ffe4eff71da53b4b561a7841
+The package matplotplusplus provides CMake targets:
+
+    find_package(Matplot++ CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE Matplot++::cimg  Matplot++::matplot)
+
+All requested installations completed successfully in: 59.6 us

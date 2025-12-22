@@ -1,0 +1,3 @@
+/workspaces/plots/out/build/linux-default/CMakeFiles/plots.dir
+/workspaces/plots/out/build/linux-default/CMakeFiles/edit_cache.dir
+/workspaces/plots/out/build/linux-default/CMakeFiles/rebuild_cache.dir

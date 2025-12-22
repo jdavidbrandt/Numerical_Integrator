@@ -1,0 +1,17 @@
+x64-linux/
+x64-linux/debug/
+x64-linux/debug/lib/
+x64-linux/debug/lib/libnodesoup.a
+x64-linux/include/
+x64-linux/include/nodesoup.hpp
+x64-linux/lib/
+x64-linux/lib/libnodesoup.a
+x64-linux/share/
+x64-linux/share/nodesoup/
+x64-linux/share/nodesoup/copyright
+x64-linux/share/nodesoup/nodesoup-config-debug.cmake
+x64-linux/share/nodesoup/nodesoup-config-release.cmake
+x64-linux/share/nodesoup/nodesoup-config.cmake
+x64-linux/share/nodesoup/usage
+x64-linux/share/nodesoup/vcpkg.spdx.json
+x64-linux/share/nodesoup/vcpkg_abi_info.txt

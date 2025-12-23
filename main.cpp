@@ -18,12 +18,12 @@ int main(){
     };
 
     //define conditions, and differential equation
-    double y_initial = 2;
     double t_initial = 0;
+    double y_initial = 2;
+    InitialCondition initial_condition(t_initial, y_initial);
     double t_final=6;
     double step_size = 0.00001;
-    double t, y;
-    FirstOrderODE my_diffeqn(my_eqn, t_initial, y_initial);
+    FirstOrderODE my_diffeqn(my_eqn, initial_condition);
 
     //actual solution to the diff eqn
     std::vector<double> t_real = matplot::linspace(t_initial, t_final);
@@ -38,8 +38,6 @@ int main(){
     //Solve diff eqn, and plot dependent variable, compare to the actual solution above
     my_diffeqn.FirstOrderRK4Solve(step_size, t_final);
     matplot::plot(my_diffeqn.predicted_rk4_independent_vals, my_diffeqn.predicted_rk4_dependent_vals, "g", t_real, y_real, "b--o");
-    //plot(my_diffeqn.predicted_rk4_independent_vals, my_diffeqn.predicted_rk4_dependent_vals, "g");
-    //plot(t_real, y_real, "b--o");
     matplot::show();
 
     return 0;

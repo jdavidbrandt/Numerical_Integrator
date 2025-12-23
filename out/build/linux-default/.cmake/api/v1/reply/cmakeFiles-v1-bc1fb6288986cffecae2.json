@@ -177,8 +177,8 @@
 	"kind" : "cmakeFiles",
 	"paths" : 
 	{
-		"build" : "/workspaces/plots/out/build/linux-default",
-		"source" : "/workspaces/plots"
+		"build" : "/workspaces/Numerical_Integrator/out/build/linux-default",
+		"source" : "/workspaces/Numerical_Integrator"
 	},
 	"version" : 
 	{

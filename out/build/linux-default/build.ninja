@@ -39,7 +39,7 @@ include CMakeFiles/rules.ninja
 #############################################
 # Logical path to working directory; prefix for absolute paths.
 
-cmake_ninja_workdir = /workspaces/plots/out/build/linux-default/
+cmake_ninja_workdir = /workspaces/Numerical_Integrator/out/build/linux-default/
 # =============================================================================
 # Object build statements for EXECUTABLE target plots
 
@@ -49,11 +49,11 @@ cmake_ninja_workdir = /workspaces/plots/out/build/linux-default/
 
 build cmake_object_order_depends_target_plots: phony || CMakeFiles/plots.dir
 
-build CMakeFiles/plots.dir/main.cpp.o: CXX_COMPILER__plots_Debug /workspaces/plots/main.cpp || cmake_object_order_depends_target_plots
+build CMakeFiles/plots.dir/main.cpp.o: CXX_COMPILER__plots_Debug /workspaces/Numerical_Integrator/main.cpp || cmake_object_order_depends_target_plots
   DEFINES = -DNOMINMAX
   DEP_FILE = CMakeFiles/plots.dir/main.cpp.o.d
   FLAGS = -g -DDEBUG
-  INCLUDES = -isystem /workspaces/plots/out/build/linux-default/vcpkg_installed/x64-linux/include
+  INCLUDES = -isystem /workspaces/Numerical_Integrator/out/build/linux-default/vcpkg_installed/x64-linux/include
   OBJECT_DIR = CMakeFiles/plots.dir
   OBJECT_FILE_DIR = CMakeFiles/plots.dir
 
@@ -79,7 +79,7 @@ build plots: CXX_EXECUTABLE_LINKER__plots_Debug CMakeFiles/plots.dir/main.cpp.o 
 # Utility command for edit_cache
 
 build CMakeFiles/edit_cache.util: CUSTOM_COMMAND
-  COMMAND = cd /workspaces/plots/out/build/linux-default && /opt/cmake/bin/ccmake -S/workspaces/plots -B/workspaces/plots/out/build/linux-default
+  COMMAND = cd /workspaces/Numerical_Integrator/out/build/linux-default && /opt/cmake/bin/ccmake -S/workspaces/Numerical_Integrator -B/workspaces/Numerical_Integrator/out/build/linux-default
   DESC = Running CMake cache editor...
   pool = console
   restat = 1
@@ -91,7 +91,7 @@ build edit_cache: phony CMakeFiles/edit_cache.util
 # Utility command for rebuild_cache
 
 build CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
-  COMMAND = cd /workspaces/plots/out/build/linux-default && /opt/cmake/bin/cmake --regenerate-during-build -S/workspaces/plots -B/workspaces/plots/out/build/linux-default
+  COMMAND = cd /workspaces/Numerical_Integrator/out/build/linux-default && /opt/cmake/bin/cmake --regenerate-during-build -S/workspaces/Numerical_Integrator -B/workspaces/Numerical_Integrator/out/build/linux-default
   DESC = Running CMake to regenerate build system...
   pool = console
   restat = 1
@@ -107,7 +107,7 @@ build rebuild_cache: phony CMakeFiles/rebuild_cache.util
 # =============================================================================
 
 #############################################
-# Folder: /workspaces/plots/out/build/linux-default
+# Folder: /workspaces/Numerical_Integrator/out/build/linux-default
 
 build all: phony plots
 

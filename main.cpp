@@ -9,7 +9,6 @@
 
 
 int main(){
-    //using namespace matplot;
     double pi = 3.14159265;
     
     //define diff eqn here and pass it in to constructor, dy/dt = return value
@@ -20,12 +19,14 @@ int main(){
     //define conditions, and differential equation
     double t_initial = 0;
     double y_initial = 2;
-    InitialCondition initial_condition(t_initial, y_initial);
     double t_final=6;
     double step_size = 0.00001;
+
+    InitialCondition initial_condition(t_initial, y_initial);
     FirstOrderODE my_diffeqn(my_eqn, initial_condition);
 
-    //actual solution to the diff eqn
+    //////////////////////////////////////////////////////////////////
+    //actual solution to this particular diff eqn, this is to compare!
     std::vector<double> t_real = matplot::linspace(t_initial, t_final);
     std::vector<double> y_real;
     double y_val, t_val, sub;
@@ -34,6 +35,7 @@ int main(){
         y_val = 1 + 1/(pow(sub, 3.0/2.0));
         y_real.push_back(y_val);
     }
+    //////////////////////////////////////////////////////////////////
 
     //Solve diff eqn, and plot dependent variable, compare to the actual solution above
     my_diffeqn.FirstOrderRK4Solve(step_size, t_final);

@@ -6,13 +6,8 @@
 #include <iostream>
 #include <functional>
 #include <cstdarg>
-#include <tuple>
 
-/////////////////////////////////////////////////////////////////////////////////
 
-//DEFINE OBJECT OF TYPE INITIAL CONDITION, SO PASSING THESE STATEMENTS IS EASIER
-
-/////////////////////////////////////////////////////////////////////////////////
 
 //takes arrays, with only 2 numbers, the first number in the array being the independent, the second being the dependent
 class InitialCondition{
@@ -77,6 +72,7 @@ public:
                 independent_step += step_size;
                 dependent_step += (k1 + 2*k2 + 2*k3 + k4)/6.0;
 
+                //adds each predicted point to two vectors, such that one can plot.
                 predicted_rk4_independent_vals.push_back(independent_step);
                 predicted_rk4_dependent_vals.push_back(dependent_step);
             }

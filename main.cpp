@@ -54,15 +54,16 @@ int main(){
     //define vector of initial conditions;
     std::vector<InitialCondition> vInitialConditions;
     double t_initial = 0;
-    double y_initial = 0;
-    double t_prime_initial = 0;
-    double y_prime_initial = 2;
     double t_final=6;
     double step_size = 0.0001;
-    InitialCondition initialcond0(t_initial,y_initial);
-    InitialCondition initialcond1(t_prime_initial, y_prime_initial);
+
+    //Initial Conditions: y(0) == 0 and y'(0) == 2 
+    InitialCondition initialcond0(0,0);
+    InitialCondition initialcond1(0, 2);
     vInitialConditions.push_back(initialcond0);
     vInitialConditions.push_back(initialcond1);
+
+    //Define SecondOrderODE passing the equation y`` == ___________ and a vector of type InitialConditions with 2 entries
     SecondOrderODE my_second_order_ODE(my_secondorder_eqn, vInitialConditions);
 
     //add an argument at the end of this, t_start, that selects where I want the first point to be plotted (not an initial condition, just the lowest t value I want to start the plot)

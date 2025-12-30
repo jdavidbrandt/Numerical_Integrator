@@ -10,10 +10,13 @@
 
 int main(){
     double pi = 3.14159265;
-    
+    //FIRST ORDER ODE TESTING
+
+    /*
     //define diff eqn here and pass it in to constructor, dy/dt = return value
     std::function<double(double,double)> my_eqn = [](double t, double y){
         return (-3*t*y + 3*t)/(pow(t,2) +1);
+        
     };
 
     //define conditions, and differential equation
@@ -37,9 +40,54 @@ int main(){
     }
     //////////////////////////////////////////////////////////////////
 
-    //Solve diff eqn, and plot dependent variable, compare to the actual solution above
+    //Solve diff eqn, and plot, compare to the actual solution above
     my_diffeqn.FirstOrderRK4Solve(step_size, t_final);
     matplot::plot(my_diffeqn.predicted_rk4_independent_vals, my_diffeqn.predicted_rk4_dependent_vals, "g", t_real, y_real, "b--o");
+    matplot::show();
+    */
+
+    //SECOND ORDER ODE TESTING
+    std::function<double(double,double,double)> my_secondorder_eqn = [](double t, double y, double y_prime){
+        return 2*y_prime - 5*y + 2*exp(-t)*(sin(2*t) - 2*cos(2*t));
+    };
+
+    //define vector of initial conditions;
+    std::vector<InitialCondition> vInitialConditions;
+    double t_initial = 0;
+    double y_initial = 0;
+    double t_prime_initial = 0;
+    double y_prime_initial = 2;
+    double t_final=6;
+    double step_size = 0.0001;
+    InitialCondition initialcond0(t_initial,y_initial);
+    InitialCondition initialcond1(t_prime_initial, y_prime_initial);
+    vInitialConditions.push_back(initialcond0);
+    vInitialConditions.push_back(initialcond1);
+    SecondOrderODE my_second_order_ODE(my_secondorder_eqn, vInitialConditions);
+
+    //add an argument at the end of this, t_start, that selects where I want the first point to be plotted (not an initial condition, just the lowest t value I want to start the plot)
+    //then create an additional loop in diff_eq_numerical_integrator.h that goes back and calculates all of those points for y and y prime.
+    my_second_order_ODE.SecondOrderRK4Solve(step_size, t_final);
+
+        //////////////////////////////////////////////////////////////////
+    //actual solution to this particular diff eqn, this is to compare!
+    std::vector<double> t_real = matplot::linspace(t_initial, t_final);
+    std::vector<double> y_real;
+    std::vector<double> y_prime_real;
+    double y_val, y_prime_val, t_val;
+    for (double val : t_real){
+        y_val = cosh(val)*sin(2*val);
+        y_prime_val = sinh(val)*sin(2*val) + 2*cosh(val)*cos(2*val);
+        y_real.push_back(y_val);
+        y_prime_real.push_back(y_prime_val);
+    }
+    //////////////////////////////////////////////////////////////////
+
+
+    matplot::plot(my_second_order_ODE.predicted_rk4_independent_vals, my_second_order_ODE.predicted_rk4_dependent_vals, "g",
+        t_real, y_real, "b--o",
+        my_second_order_ODE.predicted_prime_rk4_independent_vals, my_second_order_ODE.predicted_prime_rk4_dependent_vals, "r",
+        t_real, y_prime_real, "b--o");
     matplot::show();
 
     return 0;

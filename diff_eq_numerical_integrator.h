@@ -161,6 +161,8 @@ class SecondOrderODE: public DiffEqn{
 
 };
 
+////////
+//In Progress: Not Functional
 class HigherOrderODE: public DiffEqn{
     public:
         //takes the order of the differential equation, the passed equation (with coefficent of 1 for highest order), and a vector of initial conditions sorted from 0th derivative to nth order derivative
@@ -175,6 +177,7 @@ class HigherOrderODE: public DiffEqn{
         }
     
 };
+////////
 
 
 

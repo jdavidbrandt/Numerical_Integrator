@@ -53,30 +53,18 @@ int main(){
 
     //define vector of initial conditions;
     std::vector<InitialCondition> vInitialConditions;
-<<<<<<< HEAD
     double t_initial = 0;
-=======
-    double t_initial=0;
->>>>>>> feature/backloop
     double t_final=6;
     double plot_starting_val = -0.5;
     double step_size = 0.0001;
 
-<<<<<<< HEAD
-    //Initial Conditions: y(0) == 0 and y'(0) == 2 
-=======
     //Initial Conditions y(0) == 0 and y'(0) == 2, place them into vector of type InitialCondition
->>>>>>> feature/backloop
     InitialCondition initialcond0(0,0);
     InitialCondition initialcond1(0, 2);
     vInitialConditions.push_back(initialcond0);
     vInitialConditions.push_back(initialcond1);
 
-<<<<<<< HEAD
-    //Define SecondOrderODE passing the equation y`` == ___________ and a vector of type InitialConditions with 2 entries
-=======
     //define SecondOrderODE passing the equation y'' = ________ and the vector of InitialConditions
->>>>>>> feature/backloop
     SecondOrderODE my_second_order_ODE(my_secondorder_eqn, vInitialConditions);
     
     //first way, 2 args, start plot at initial conditons

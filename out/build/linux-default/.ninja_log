@@ -1,10 +1,7 @@
 # ninja log v7
 0	181	1765851552286093407	CMakeFiles/rename_me.dir/main.cpp.o	1472e6acfc67e2f2
 181	210	1765851552463807663	rename_me	8db75f29e68875c2
-<<<<<<< HEAD
-1	852	1767136840492228678	CMakeFiles/plots.dir/main.cpp.o	bb36b66c29cc0f6
-853	1068	1767136841340111044	plots	cd45dcc3f8c37f01
-=======
 1	770	1767378939711118534	CMakeFiles/plots.dir/main.cpp.o	bb36b66c29cc0f6
 770	1146	1767378939978765520	plots	cd45dcc3f8c37f01
->>>>>>> feature/backloop
+2	1033	1767379836854790143	CMakeFiles/plots.dir/main.cpp.o	bb36b66c29cc0f6
+1033	1408	1767379837884390154	plots	cd45dcc3f8c37f01

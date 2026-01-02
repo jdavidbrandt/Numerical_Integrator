@@ -11,4 +11,8 @@ The package matplotplusplus provides CMake targets:
     find_package(Matplot++ CONFIG REQUIRED)
     target_link_libraries(main PRIVATE Matplot++::cimg  Matplot++::matplot)
 
+<<<<<<< HEAD
 All requested installations completed successfully in: 60.1 us
+=======
+All requested installations completed successfully in: 61.2 us
+>>>>>>> feature/backloop

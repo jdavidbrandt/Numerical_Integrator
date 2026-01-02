@@ -53,26 +53,41 @@ int main(){
 
     //define vector of initial conditions;
     std::vector<InitialCondition> vInitialConditions;
+<<<<<<< HEAD
     double t_initial = 0;
+=======
+    double t_initial=0;
+>>>>>>> feature/backloop
     double t_final=6;
+    double plot_starting_val = -0.5;
     double step_size = 0.0001;
 
+<<<<<<< HEAD
     //Initial Conditions: y(0) == 0 and y'(0) == 2 
+=======
+    //Initial Conditions y(0) == 0 and y'(0) == 2, place them into vector of type InitialCondition
+>>>>>>> feature/backloop
     InitialCondition initialcond0(0,0);
     InitialCondition initialcond1(0, 2);
     vInitialConditions.push_back(initialcond0);
     vInitialConditions.push_back(initialcond1);
 
+<<<<<<< HEAD
     //Define SecondOrderODE passing the equation y`` == ___________ and a vector of type InitialConditions with 2 entries
+=======
+    //define SecondOrderODE passing the equation y'' = ________ and the vector of InitialConditions
+>>>>>>> feature/backloop
     SecondOrderODE my_second_order_ODE(my_secondorder_eqn, vInitialConditions);
+    
+    //first way, 2 args, start plot at initial conditons
+    //my_second_order_ODE.SecondOrderRK4Solve(step_size, t_final);
 
-    //add an argument at the end of this, t_start, that selects where I want the first point to be plotted (not an initial condition, just the lowest t value I want to start the plot)
-    //then create an additional loop in diff_eq_numerical_integrator.h that goes back and calculates all of those points for y and y prime.
-    my_second_order_ODE.SecondOrderRK4Solve(step_size, t_final);
+    //second way, 3 args start plot at plot_starting_val
+    my_second_order_ODE.SecondOrderRK4Solve(step_size, plot_starting_val, t_final);
 
-        //////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////
     //actual solution to this particular diff eqn, this is to compare!
-    std::vector<double> t_real = matplot::linspace(t_initial, t_final);
+    std::vector<double> t_real = matplot::linspace(plot_starting_val, t_final);
     std::vector<double> y_real;
     std::vector<double> y_prime_real;
     double y_val, y_prime_val, t_val;
@@ -84,7 +99,7 @@ int main(){
     }
     //////////////////////////////////////////////////////////////////
 
-
+    //plotting RK4 predictions with actual analytic solutions
     matplot::plot(my_second_order_ODE.predicted_rk4_independent_vals, my_second_order_ODE.predicted_rk4_dependent_vals, "g",
         t_real, y_real, "b--o",
         my_second_order_ODE.predicted_prime_rk4_independent_vals, my_second_order_ODE.predicted_prime_rk4_dependent_vals, "r",

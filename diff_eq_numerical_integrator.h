@@ -6,6 +6,7 @@
 #include <iostream>
 #include <functional>
 #include <cstdarg>
+#include <stdexcept>
 
 
 
@@ -131,9 +132,12 @@ class SecondOrderODE: public DiffEqn{
 
             int n = (independent_final - independent_initial)/step_size;
 
+            //backloop portion (to do the first part of the graph as requested by user)
+
             for (int i = 0; i < n; ++i){
                 if(std::isnan(v_dot(independent_step, dependent_step, dependent_prime_step)) || std::isinf(v_dot(independent_step, dependent_step, dependent_prime_step))){
                     independent_step+=step_size;
+                    independent_prime_step+=step_size;
                 }
                 else{
                     k1 = step_size*v(independent_step, dependent_step, dependent_prime_step);
@@ -156,9 +160,55 @@ class SecondOrderODE: public DiffEqn{
                     predicted_prime_rk4_dependent_vals.push_back(dependent_prime_step);
                 }
             }
-        }        
-        
+        }
+        //function overload to pass one more arg, then call the non-overloaded function to complete the plot from initial conditions to independent_final
+        //takes step size, independent_initial (from initial conditions), and independent_plot_starting_val, (where the plot actually starts plotting)
+        void SecondOrderRK4Solve(double step_size, double independent_plot_starting_val, double independent_final){
+            
+            std::function<double(double,double,double)> v = [](double t, double y, double y_dot){
+                return y_dot;
+            };
+            double i1, i2, i3, i4, j1, j2, j3, j4 = 0;
 
+            //have them start at the initial conditions, and work backwards to the independent_plot_starting_val
+            double independent_step = independent_initial;
+            double dependent_step = dependent_initial;
+            double independent_prime_step = independent_prime_initial;
+            double dependent_prime_step = dependent_prime_initial;
+
+            int m = (independent_initial - independent_plot_starting_val)/step_size;
+
+            for(int j = 0; j < m; ++j){
+                if(std::isnan(v_dot(independent_step, dependent_step, dependent_prime_step)) || std::isinf(v_dot(independent_step, dependent_step, dependent_prime_step))){
+                    independent_step-=step_size;
+                    independent_prime_step-=step_size;
+                }
+                else{
+                    i1 = step_size*v(independent_step, dependent_step, dependent_prime_step);
+                    j1 = step_size*v_dot(independent_step, dependent_step, dependent_prime_step);
+                    i2 = step_size*v(independent_step + 0.5*step_size, dependent_step + 0.5*step_size*i1, dependent_prime_step + 0.5*step_size*j1);
+                    j2 = step_size*v_dot(independent_step + 0.5*step_size, dependent_step + 0.5*step_size*i1, dependent_prime_step + 0.5*step_size*j1);
+                    i3 = step_size*v(independent_step + 0.5*step_size, dependent_step + 0.5*step_size*i2, dependent_prime_step + 0.5*step_size*j2);
+                    j3 = step_size*v_dot(independent_step + 0.5*step_size, dependent_step + 0.5*step_size*i2, dependent_prime_step + 0.5*step_size*j2);
+                    i4 = step_size*v(independent_step + step_size, dependent_step + step_size*i3, dependent_prime_step + step_size*j3);
+                    j4 = step_size*v_dot(independent_step + step_size, dependent_step + step_size*i3, dependent_prime_step + step_size*j3);
+
+                    independent_step -= step_size;
+                    independent_prime_step -= step_size;
+                    dependent_step -= (i1 + 2*i2 + 2*i3 + i4)/6.0;
+                    dependent_prime_step -= (j1 + 2*j2 + 2*j3 + j4)/6.0;
+
+                    predicted_rk4_independent_vals.push_back(independent_step);
+                    predicted_rk4_dependent_vals.push_back(dependent_step);
+                    predicted_prime_rk4_independent_vals.push_back(independent_prime_step);
+                    predicted_prime_rk4_dependent_vals.push_back(dependent_prime_step);
+                }
+            }
+            //call non-overwritten function to plot the back half of the set
+            SecondOrderRK4Solve(step_size, independent_final);
+        }
+        
+            
 };
 
 ////////

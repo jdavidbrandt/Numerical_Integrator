@@ -161,9 +161,9 @@ class SecondOrderODE: public DiffEqn{
                 }
             }
         }
-        //function overload to pass one more arg, then call itself to complete the plot from initial conditions to independent_final
+        //function overload to pass one more arg, then call the non-overloaded function to complete the plot from initial conditions to independent_final
         //takes step size, independent_initial (from initial conditions), and independent_plot_starting_val, (where the plot actually starts plotting)
-        void SecondOrderRK4Solve(double step_size, double independent_final, double independent_plot_starting_val){
+        void SecondOrderRK4Solve(double step_size, double independent_plot_starting_val, double independent_final){
             
             std::function<double(double,double,double)> v = [](double t, double y, double y_dot){
                 return y_dot;

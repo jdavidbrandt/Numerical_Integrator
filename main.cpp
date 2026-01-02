@@ -66,19 +66,16 @@ int main(){
 
     //define SecondOrderODE passing the equation y'' = ________ and the vector of InitialConditions
     SecondOrderODE my_second_order_ODE(my_secondorder_eqn, vInitialConditions);
-
-    //add an argument at the end of this, t_start, that selects where I want the first point to be plotted (not an initial condition, just the lowest t value I want to start the plot)
-    //then create an additional loop in diff_eq_numerical_integrator.h that goes back and calculates all of those points for y and y prime.
     
-    //first way, 2 args
+    //first way, 2 args, start plot at initial conditons
     //my_second_order_ODE.SecondOrderRK4Solve(step_size, t_final);
 
-    //second way, 4 args
-    my_second_order_ODE.SecondOrderRK4Solve(step_size, t_final, plot_starting_val);
+    //second way, 3 args start plot at plot_starting_val
+    my_second_order_ODE.SecondOrderRK4Solve(step_size, plot_starting_val, t_final);
 
     //////////////////////////////////////////////////////////////////
     //actual solution to this particular diff eqn, this is to compare!
-    std::vector<double> t_real = matplot::linspace(-0.5, t_final);
+    std::vector<double> t_real = matplot::linspace(plot_starting_val, t_final);
     std::vector<double> y_real;
     std::vector<double> y_prime_real;
     double y_val, y_prime_val, t_val;

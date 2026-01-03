@@ -20,6 +20,7 @@ int main(){
     };
 
     //define conditions, and differential equation
+    double plot_start = -6;
     double t_initial = 0;
     double y_initial = 2;
     double t_final=6;
@@ -30,7 +31,7 @@ int main(){
 
     //////////////////////////////////////////////////////////////////
     //actual solution to this particular diff eqn, this is to compare!
-    std::vector<double> t_real = matplot::linspace(t_initial, t_final);
+    std::vector<double> t_real = matplot::linspace(plot_start, t_final);
     std::vector<double> y_real;
     double y_val, t_val, sub;
     for (double val : t_real){
@@ -41,12 +42,14 @@ int main(){
     //////////////////////////////////////////////////////////////////
 
     //Solve diff eqn, and plot, compare to the actual solution above
-    my_diffeqn.FirstOrderRK4Solve(step_size, t_final);
+    //my_diffeqn.FirstOrderRK4Solve(step_size, t_final);
+    my_diffeqn.FirstOrderRK4Solve(step_size, plot_start, t_final);
     matplot::plot(my_diffeqn.predicted_rk4_independent_vals, my_diffeqn.predicted_rk4_dependent_vals, "g", t_real, y_real, "b--o");
     matplot::show();
     */
 
     //SECOND ORDER ODE TESTING
+    
     std::function<double(double,double,double)> my_secondorder_eqn = [](double t, double y, double y_prime){
         return 2*y_prime - 5*y + 2*exp(-t)*(sin(2*t) - 2*cos(2*t));
     };
@@ -55,7 +58,7 @@ int main(){
     std::vector<InitialCondition> vInitialConditions;
     double t_initial = 0;
     double t_final=6;
-    double plot_starting_val = -0.5;
+    double plot_starting_val = -5;
     double step_size = 0.0001;
 
     //Initial Conditions y(0) == 0 and y'(0) == 2, place them into vector of type InitialCondition
@@ -93,6 +96,6 @@ int main(){
         my_second_order_ODE.predicted_prime_rk4_independent_vals, my_second_order_ODE.predicted_prime_rk4_dependent_vals, "r",
         t_real, y_prime_real, "b--o");
     matplot::show();
-
+    
     return 0;
 }

@@ -6,6 +6,8 @@
 #include <iostream>
 #include <functional>
 #include <cstdarg>
+#include <stdexcept>
+#include <algorithm>
 
 
 
@@ -27,7 +29,7 @@ class InitialCondition{
 //base class
 class DiffEqn {
     public:
-        //unable to make equation part of base class, because as order goes up, more doubles are required as input
+        //each differential equation will have a data set, the predicted independent, and dependent vals
         std::vector<double> predicted_rk4_independent_vals;
         std::vector<double> predicted_rk4_dependent_vals;
 };
@@ -62,11 +64,11 @@ class FirstOrderODE: public DiffEqn{
             double dependent_step = dependent_initial;
             
 
-            //Define number of steps, and start Estimating slopes at every step, give them a weighted average, and fill vectors so that one can plot predicted values
+            //Define number of steps, and start estimating slopes at every step, give them a weighted average, and fill vectors so that one can plot predicted values
             int n = (independent_final - independent_initial)/step_size;
             for (int i=0; i<n; ++i){
 
-                //if independent_step == 0, and we are dividing by the current independent step, go to the next step, and don't calculate k vals
+                //if we ever divide by 0, go to the next step, and don't calculate k vals
                 if(std::isnan(equation(independent_step, dependent_step)) || std::isinf(equation(independent_step, dependent_step))){
                     independent_step+=step_size;
                 }
@@ -84,11 +86,50 @@ class FirstOrderODE: public DiffEqn{
                 }   
             }
         }
+        //function overload for choosing an independent plotting start value
+        void FirstOrderRK4Solve(double step_size, double independent_plot_start_val, double independent_final){
+
+            //Runge-Kutta constants initialization, and setting the first step to the initial conditions
+            double l1, l2, l3, l4;
+            double independent_step = independent_initial;
+            double dependent_step = dependent_initial;
+
+            //Define number of steps, and start estimating slopes at every step, give them a weighted average, and fill vectors so that one can plot predicted values
+            int m = (independent_initial - independent_plot_start_val)/step_size;
+            for(int j = 0; j < m; ++j){
+                //if we ever divide by 0, go to the next step, and don't calculate l vals
+                if(std::isnan(equation(independent_step, dependent_step)) || std::isinf(equation(independent_step, dependent_step))){
+                    independent_step-=step_size;
+                }
+                else{
+                    l1 = step_size * equation(independent_step, dependent_step);
+                    l2 = step_size * equation(independent_step + 0.5*step_size, dependent_step + 0.5*l1);
+                    l3 = step_size * equation(independent_step + 0.5*step_size, dependent_step + 0.5*l2);
+                    l4 = step_size * equation(independent_step + step_size, dependent_step + l3);
+
+                    //increment
+                    independent_step -= step_size;
+                    dependent_step -= (l1 + 2*l2 + 2*l3 + l4)/6.0;
+
+                    //store, such that one can plot.
+                    predicted_rk4_independent_vals.push_back(independent_step);
+                    predicted_rk4_dependent_vals.push_back(dependent_step);
+                }
+            }
+            
+            //since I am decrementing, i must reverse the order of predicted_rk4_*_vals so that the first and middle points are not connected, such that I can plot left to right, instead of the middle out.
+            std::reverse(predicted_rk4_independent_vals.begin(), predicted_rk4_independent_vals.end());
+            std::reverse(predicted_rk4_dependent_vals.begin(), predicted_rk4_dependent_vals.end());
+
+            //call non-overloaded function to plot the back portion of the set
+            FirstOrderRK4Solve(step_size, independent_final);
+        }
 };
 
+//of form d2ydt2 = f(t, y, y')
 class SecondOrderODE: public DiffEqn{
     public:
-        //populate constructor, then split into two first order ODE's and solve them using the FirstOrderRK4Solve method
+        //define initial conditions, initiate equations used, and initiate two additional vectors for y' values
         std::function<double(double,double,double)> equation;
         std::function<double(double,double,double)> v_dot; 
         double independent_initial, dependent_initial, independent_prime_initial, dependent_prime_initial;
@@ -96,12 +137,9 @@ class SecondOrderODE: public DiffEqn{
 
         //takes in what d2y/dt2 is equal to, i.e. d2y/dt2 = f(t, y, y'), and a vector populated with types InitialCondtion (there should be two Initial conditions in this particular vector)
         SecondOrderODE(std::function<double(double,double,double)> passed_equation, std::vector<InitialCondition> vInitialConditions){
-            //sets equations, and initial conditions. The equations are immediately broken into two first order differential equations
-            //where v = f1(t, y, y_dot) and v_dot = f2(t, y, y_dot) 
-
-            //split second order diff eqn into two first order by defining two fundtions, one for v_dot (so copy the passed function), and one for v, i.e, x_dot
+            
+            //sets equations, and initial conditions. The equations are broken into two first order differential equations upon invoking SecondOrderRK4Solve() where v = f1(t, y, y_dot) and v_dot = f2(t, y, y_dot) 
             equation, v_dot = passed_equation;
-
             independent_initial = vInitialConditions.at(0).pairs[0];
             dependent_initial = vInitialConditions.at(0).pairs[1];
             independent_prime_initial = vInitialConditions.at(1).pairs[0];
@@ -112,28 +150,24 @@ class SecondOrderODE: public DiffEqn{
             predicted_rk4_dependent_vals.push_back(dependent_initial);
             predicted_prime_rk4_independent_vals.push_back(independent_prime_initial);
             predicted_prime_rk4_dependent_vals.push_back(dependent_prime_initial);
-
-            
-            
         }
 
-        //takes in step_size of type double, and independent_final of type double
+        //takes in step_size, and independent_final
         void SecondOrderRK4Solve(double step_size, double independent_final){
             //initialize Runge-Kutta constants k being for dependent, and l being for dependent_prime, along with the substitution equation, v
             std::function<double(double,double,double)> v = [](double t, double y, double y_dot){
                 return y_dot;
             };
-            double k1, k2, k3, k4, l1, l2, l3, l4 = 0;
+            double k1, k2, k3, k4, l1, l2, l3, l4;
             double independent_step = independent_initial;
             double dependent_step = dependent_initial;
             double independent_prime_step = independent_prime_initial;
             double dependent_prime_step = dependent_prime_initial;
 
+            //Define number of steps, and start estimating slopes at every step, give them a weighted average, and fill vectors so that one can plot predicted values
             int n = (independent_final - independent_initial)/step_size;
-
-            //backloop portion (to do the first part of the graph as requested by user)
-
             for (int i = 0; i < n; ++i){
+                //if we ever divide by 0, go to the next step, and don't calculate k and l vals
                 if(std::isnan(v_dot(independent_step, dependent_step, dependent_prime_step)) || std::isinf(v_dot(independent_step, dependent_step, dependent_prime_step))){
                     independent_step+=step_size;
                     independent_prime_step+=step_size;
@@ -148,11 +182,13 @@ class SecondOrderODE: public DiffEqn{
                     k4 = step_size*v(independent_step + step_size, dependent_step + step_size*k3, dependent_prime_step + step_size*l3);
                     l4 = step_size*v_dot(independent_step + step_size, dependent_step + step_size*k3, dependent_prime_step + step_size*l3);
 
+                    //increment
                     independent_step += step_size;
                     independent_prime_step += step_size;
                     dependent_step += (k1 + 2*k2 + 2*k3 + k4)/6.0;
                     dependent_prime_step += (l1 + 2*l2 + 2*l3 + l4)/6.0;
 
+                    //store, such that one can plot
                     predicted_rk4_independent_vals.push_back(independent_step);
                     predicted_rk4_dependent_vals.push_back(dependent_step);
                     predicted_prime_rk4_independent_vals.push_back(independent_prime_step);
@@ -160,14 +196,15 @@ class SecondOrderODE: public DiffEqn{
                 }
             }
         }
-        //function overload to pass one more arg, then call the non-overloaded function to complete the plot from initial conditions to independent_final
+
         //takes step size, independent_initial (from initial conditions), and independent_plot_starting_val, (where the plot actually starts plotting)
+        //function overload to pass one more arg, then call the non-overloaded function to complete the plot from initial conditions to independent_final
         void SecondOrderRK4Solve(double step_size, double independent_plot_starting_val, double independent_final){
-            
+            //substitution variable which is always true, let v = y_dot    
             std::function<double(double,double,double)> v = [](double t, double y, double y_dot){
                 return y_dot;
             };
-            double i1, i2, i3, i4, j1, j2, j3, j4 = 0;
+            double i1, i2, i3, i4, j1, j2, j3, j4;
 
             //have them start at the initial conditions, and work backwards to the independent_plot_starting_val
             double independent_step = independent_initial;
@@ -175,9 +212,10 @@ class SecondOrderODE: public DiffEqn{
             double independent_prime_step = independent_prime_initial;
             double dependent_prime_step = dependent_prime_initial;
 
+            //Define number of steps, and start estimating slopes at every step, give them a weighted average, and fill vectors so that one can plot predicted values
             int m = (independent_initial - independent_plot_starting_val)/step_size;
-
             for(int j = 0; j < m; ++j){
+                //if we ever divide by 0, go to the next step, and don't calculate i and j vals
                 if(std::isnan(v_dot(independent_step, dependent_step, dependent_prime_step)) || std::isinf(v_dot(independent_step, dependent_step, dependent_prime_step))){
                     independent_step-=step_size;
                     independent_prime_step-=step_size;
@@ -192,18 +230,27 @@ class SecondOrderODE: public DiffEqn{
                     i4 = step_size*v(independent_step + step_size, dependent_step + step_size*i3, dependent_prime_step + step_size*j3);
                     j4 = step_size*v_dot(independent_step + step_size, dependent_step + step_size*i3, dependent_prime_step + step_size*j3);
 
+                    //decrement
                     independent_step -= step_size;
                     independent_prime_step -= step_size;
                     dependent_step -= (i1 + 2*i2 + 2*i3 + i4)/6.0;
                     dependent_prime_step -= (j1 + 2*j2 + 2*j3 + j4)/6.0;
 
+                    //storing such that one can plot
                     predicted_rk4_independent_vals.push_back(independent_step);
                     predicted_rk4_dependent_vals.push_back(dependent_step);
                     predicted_prime_rk4_independent_vals.push_back(independent_prime_step);
                     predicted_prime_rk4_dependent_vals.push_back(dependent_prime_step);
                 }
             }
-            //call non-overwritten function to plot the back half of the set
+            
+            //since I am decrementing, i must reverse the order of predicted_rk4_*_vals so that the first and middle points are not connect, such that I can plot left to right, instead of the middle out.
+            std::reverse(predicted_rk4_independent_vals.begin(), predicted_rk4_independent_vals.end());
+            std::reverse(predicted_rk4_dependent_vals.begin(), predicted_rk4_dependent_vals.end());
+            std::reverse(predicted_prime_rk4_independent_vals.begin(), predicted_prime_rk4_independent_vals.end());
+            std::reverse(predicted_prime_rk4_dependent_vals.begin(), predicted_prime_rk4_dependent_vals.end());
+
+            //call non-overloaded function to plot the back half of the set
             SecondOrderRK4Solve(step_size, independent_final);
         }
         
@@ -212,6 +259,7 @@ class SecondOrderODE: public DiffEqn{
 
 ////////
 //In Progress: Not Functional
+//Non-functional
 class HigherOrderODE: public DiffEqn{
     public:
         //takes the order of the differential equation, the passed equation (with coefficent of 1 for highest order), and a vector of initial conditions sorted from 0th derivative to nth order derivative
@@ -226,7 +274,6 @@ class HigherOrderODE: public DiffEqn{
         }
     
 };
-////////
 
 
 

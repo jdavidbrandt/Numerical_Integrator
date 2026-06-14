@@ -39,7 +39,7 @@ The actual solution is in blue, and the predicted solution with the Runge-Kutta 
 
 In blue, again, is the actual solution. One can plot this in desmos with the following and compare to the graph below
 
-$\large J(a,t) = \sum_{m=0}^{100} \frac{(-1)^{m}}{m!(m+a)!} (\frac{x}{2})^{2m + a}$
+$\large J(a,t) = \sum_{m=0}^{100} \frac{(-1)^{m}}{m!(m+a)!} (\frac{x}{2})^{(2m + a)}$
 
 $\large J(0,t) {t > 0}$
 

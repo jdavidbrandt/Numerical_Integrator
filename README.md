@@ -37,7 +37,7 @@ In this case, $\large \alpha = 0$ so this solution is a 0th Order of the First K
 
 The actual solution is in blue, and the predicted solution with the Runge-Kutta 4 algorithm is shown in green
 
-In blue, again, is the actual solution. One can plot this in desmos with the following and compare to the graph below
+One can plot this in desmos with the following and compare to the graph below
 
 $\large J(a,t) = \sum_{m=0}^{100} \frac{(-1)^{m}}{m!(m+a)!} (\frac{x}{2})^{(2m + a)}$
 

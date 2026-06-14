@@ -13,7 +13,7 @@ In main.cpp, one can see that the blue-dotted line is the actual solution, where
 
 With Solution stated here, and pictured below
 
-$\large - \frac{1}{2} \cos({t}) \cos({2t}) - \sin({t}) + 7 \cos({t})$
+$\large y(t) = - \frac{1}{2} \cos({t}) \cos({2t}) - \sin({t}) + 7 \cos({t})$
 
 <img width="560" height="420" alt="first_order_ode" src="https://github.com/user-attachments/assets/738d6243-9879-4879-8be2-9566e075b90b" />
 

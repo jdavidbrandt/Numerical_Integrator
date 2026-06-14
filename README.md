@@ -24,10 +24,14 @@ $\large - \frac{1}{2} \cos({t}) \cos({2t}) - \sin({t}) + 7 \cos({t})$
 The next example is a Second Order ODE, with Bessel solutions.
 
 $\large t^{2} \frac{d^{2}y}{dt^{2}} + t \frac{dy}{dt} + (t^{2} - \alpha^{2}) y = 0$ 
-with 
-$\large y(1) = J_{0}(1)$ 
-and 
-$\large y'(1) = - J_{1}(1)$ 
+
+with
+
+$\large y(1) = J_{0}(1)$
+
+and
+
+$\large \frac{dy(1)}{dt} = - J_{1}(1)$ 
 
 In this case, $\large \alpha = 0$ so this solution is a 0th Order of the First Kind Bessel Function.
 
@@ -36,8 +40,10 @@ The actual solution is in blue, and the predicted solution with the Runge-Kutta 
 In blue, again, is the actual solution. One can plot this in desmos with the following and compare to the graph below
 
 $\large J(a,t) = \sum{m=0}^{100} \frac{(-1)^{m}}{m!(m+a)!} (\frac{x}{2})^{2m + a}$
+
 $\large J(0,t) {t > 0}$
-$\large J(1,t) {t > 0}$
+
+$\large -J(1,t) {t > 0}$
 
 <img width="560" height="420" alt="bessel_solution" src="https://github.com/user-attachments/assets/e975234b-c258-411b-aa34-d857e0278218" />
 

@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/workspaces/Numerical_Integrator/out/build/linux-default",
+  "command": "/usr/bin/c++ -DNOMINMAX -isystem /workspaces/Numerical_Integrator/out/build/linux-default/vcpkg_installed/x64-linux/include -g -DDEBUG -o CMakeFiles/plots.dir/main.cpp.o -c /workspaces/Numerical_Integrator/main.cpp",
+  "file": "/workspaces/Numerical_Integrator/main.cpp"
+}
+]

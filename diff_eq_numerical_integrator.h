@@ -8,20 +8,27 @@
 #include <cstdarg>
 #include <stdexcept>
 #include <algorithm>
+#include <tuple>
 
 
-
-//takes arrays, with only 2 numbers, the first number in the array being the independent, the second being the dependent
+//InitialCondition(double independent, double dependent)
+//take two doubles, one being the independent, the second being the dependent, and assigns them to pair. y(0) = 1 would construct this tuple ->     (0, 1)
 class InitialCondition{
     public:
         
-        //The initial condition y(pi) = 5 in this array would read, initial_condition[0] == pi and initial_condition[1] == 5, pairing the point (pi, 5) 
-        double pairs[2];
+    // pairs is the tuple (independent, dependent)
+        std::tuple<double, double> pairs;
+        double independent;
+        double dependent;
 
-        //constructor
-        InitialCondition(double passed_independent_0, double passed_dependent_0){
-            pairs[0] = passed_independent_0;
-            pairs[1] = passed_dependent_0;
+        //constructor, assigns above members with what is passed in via initializer
+        InitialCondition(double passed_independent_0, double passed_dependent_0)
+            :pairs(passed_independent_0, passed_dependent_0),
+            independent(passed_independent_0),
+            dependent(passed_dependent_0)    
+        {
+
+
         }
 
 };
@@ -34,38 +41,44 @@ class DiffEqn {
         std::vector<double> predicted_rk4_dependent_vals;
 };
 
-//of form dy/dt + P(t)y = Q(t). Define Diff eqn by solving for dy/dt, and returning what is on the right hand side of the eqn in main. dy/dt = return value
+//FirstOrderODE(std::function<double(double,double)> passed_equation, InitialCondition initial_condition)
+//of form dy/dt + P(t)y = Q(t). Define Diff eqn by solving for dy/dt algebraically, and returning what is on the right hand side of the eqn in main. dy/dt = return value
+//this is done in main()
 class FirstOrderODE: public DiffEqn{
     public:
         //define initial conditions, initiate a function (empty, it is defined in main), and initiate vectors for independent and dependent predicted values
         std::function<double(double,double)> equation;
-        double independent_initial;
-        double dependent_initial;
+        InitialCondition initialCondition;
 
-        //takes in what dy/dt is equal to (passed_equation), and an object of type InitialCondition
-        FirstOrderODE(std::function<double(double,double)> passed_equation, InitialCondition initial_condition){
-            equation = passed_equation;
-            independent_initial = initial_condition.pairs[0];
-            dependent_initial = initial_condition.pairs[1];
+        //FirstOrderODE(std::function<double(double,double)> passed_equation, InitialCondition initial_condition)
+        //takes in what dy/dt is equal to (passed_equation), and an object of type InitialCondition, and assigns passed_equation, and initial conditions via initializer
+        FirstOrderODE(std::function<double(double,double)> passed_equation, InitialCondition initial_condition)
+            : equation(passed_equation),
+            initialCondition(initial_condition.independent, initial_condition.dependent)
 
-            //sets the first step
-            predicted_rk4_independent_vals.push_back(initial_condition.pairs[0]);
-            predicted_rk4_dependent_vals.push_back(initial_condition.pairs[1]);
-
-            
+        {
+            //sets the initial condition
+            predicted_rk4_independent_vals.push_back(initial_condition.independent);
+            predicted_rk4_dependent_vals.push_back(initial_condition.dependent);         
         }
 
-    //function to solve the the First Order Linear Diff Eqn, given a step size, and independent axis range
+    //Add first order Euler Method
+        double FirstOrderEulerMethodGetPos(double step_size, InitialCondition initial_condition){
+            double forward_pos = initial_condition.dependent + step_size*equation(initial_condition.independent, initial_condition.dependent);
+            return forward_pos;
+        }
+    //FirstOrderRK4Solve(double step_size, double independent_final)
+    //function to solve the the First Order Linear Diff Eqn, given a step size, and independent final starting from t = 0
         void FirstOrderRK4Solve(double step_size, double independent_final){
 
             //Runge-Kutta constants initialization, and setting the first step to the initial conditions
             double k1, k2, k3, k4;
-            double independent_step = independent_initial;
-            double dependent_step = dependent_initial;
+            double independent_step = initialCondition.independent;
+            double dependent_step = initialCondition.dependent;
             
 
             //Define number of steps, and start estimating slopes at every step, give them a weighted average, and fill vectors so that one can plot predicted values
-            int n = (independent_final - independent_initial)/step_size;
+            int n = (independent_final - initialCondition.independent)/step_size;
             for (int i=0; i<n; ++i){
 
                 //if we ever divide by 0, go to the next step, and don't calculate k vals
@@ -86,16 +99,17 @@ class FirstOrderODE: public DiffEqn{
                 }   
             }
         }
-        //function overload for choosing an independent plotting start value
+        //function overload for choosing an independent plotting start value that's not the "initial condition".
+        //The initial condition must lie on the curve, it doesn't have to be the start of the curve
         void FirstOrderRK4Solve(double step_size, double independent_plot_start_val, double independent_final){
 
             //Runge-Kutta constants initialization, and setting the first step to the initial conditions
             double l1, l2, l3, l4;
-            double independent_step = independent_initial;
-            double dependent_step = dependent_initial;
+            double independent_step = initialCondition.independent;
+            double dependent_step = initialCondition.dependent;
 
             //Define number of steps, and start estimating slopes at every step, give them a weighted average, and fill vectors so that one can plot predicted values
-            int m = (independent_initial - independent_plot_start_val)/step_size;
+            int m = (initialCondition.independent - independent_plot_start_val)/step_size;
             for(int j = 0; j < m; ++j){
                 //if we ever divide by 0, go to the next step, and don't calculate l vals
                 if(std::isnan(equation(independent_step, dependent_step)) || std::isinf(equation(independent_step, dependent_step))){
@@ -126,46 +140,47 @@ class FirstOrderODE: public DiffEqn{
         }
 };
 
-//of form d2ydt2 = f(t, y, y')
+//SecondOrderODE(std::function<double(double,double,double)> passed_equation, InitialCondition posCondition, InitialCondition velCondition)
+//of form y'' = f(t, y, y')
 class SecondOrderODE: public DiffEqn{
     public:
-        //define initial conditions, initiate equations used, and initiate two additional vectors for y' values
-        std::function<double(double,double,double)> equation;
+        //define initial conditions, initiate equations used, and initiate two additional vectors for y' values, predicted_prime_vals
         std::function<double(double,double,double)> v_dot; 
-        double independent_initial, dependent_initial, independent_prime_initial, dependent_prime_initial;
+        InitialCondition posInitialCondition;
+        InitialCondition velInitialCondition;
         std::vector<double> predicted_prime_rk4_independent_vals, predicted_prime_rk4_dependent_vals;
 
-        //takes in what d2y/dt2 is equal to, i.e. d2y/dt2 = f(t, y, y'), and a vector populated with types InitialCondtion (there should be two Initial conditions in this particular vector)
-        SecondOrderODE(std::function<double(double,double,double)> passed_equation, std::vector<InitialCondition> vInitialConditions){
+        //Takes in an equation, y''=f(t,y,y'), and two InitialCondition, one for position, the other for velocity. the initializes all via initializer
+        SecondOrderODE(std::function<double(double,double,double)> passed_equation, InitialCondition posCondition, InitialCondition velCondition)
+            : v_dot(passed_equation),
+            posInitialCondition(posCondition.independent, posCondition.dependent),
+            velInitialCondition(velCondition.independent, velCondition.dependent)
             
-            //sets equations, and initial conditions. The equations are broken into two first order differential equations upon invoking SecondOrderRK4Solve() where v = f1(t, y, y_dot) and v_dot = f2(t, y, y_dot) 
-            equation, v_dot = passed_equation;
-            independent_initial = vInitialConditions.at(0).pairs[0];
-            dependent_initial = vInitialConditions.at(0).pairs[1];
-            independent_prime_initial = vInitialConditions.at(1).pairs[0];
-            dependent_prime_initial = vInitialConditions.at(1).pairs[1];
-
+        {
+            
+            //The equations are broken into two first order, coupled differential equations upon invoking SecondOrderRK4Solve() where v = f1(t, y, y_dot) and v_dot = f2(t, y, y_dot) 
             //sets the first steps
-            predicted_rk4_independent_vals.push_back(independent_initial);
-            predicted_rk4_dependent_vals.push_back(dependent_initial);
-            predicted_prime_rk4_independent_vals.push_back(independent_prime_initial);
-            predicted_prime_rk4_dependent_vals.push_back(dependent_prime_initial);
+            predicted_rk4_independent_vals.push_back(posCondition.independent);
+            predicted_rk4_dependent_vals.push_back(posCondition.dependent);
+            predicted_prime_rk4_independent_vals.push_back(velCondition.independent);
+            predicted_prime_rk4_dependent_vals.push_back(velCondition.dependent);
         }
-
-        //takes in step_size, and independent_final
+        
+        //SecondOrderRK4Solve(double step_size, double independent_final)
+        //takes in step_size, and independent_final, and populates members with doubles such that one can plot
         void SecondOrderRK4Solve(double step_size, double independent_final){
             //initialize Runge-Kutta constants k being for dependent, and l being for dependent_prime, along with the substitution equation, v
             std::function<double(double,double,double)> v = [](double t, double y, double y_dot){
                 return y_dot;
             };
             double k1, k2, k3, k4, l1, l2, l3, l4;
-            double independent_step = independent_initial;
-            double dependent_step = dependent_initial;
-            double independent_prime_step = independent_prime_initial;
-            double dependent_prime_step = dependent_prime_initial;
+            double independent_step = posInitialCondition.independent;
+            double dependent_step = posInitialCondition.dependent;
+            double independent_prime_step = velInitialCondition.independent;
+            double dependent_prime_step = velInitialCondition.dependent;
 
             //Define number of steps, and start estimating slopes at every step, give them a weighted average, and fill vectors so that one can plot predicted values
-            int n = (independent_final - independent_initial)/step_size;
+            int n = (independent_final - posInitialCondition.independent)/step_size;
             for (int i = 0; i < n; ++i){
                 //if we ever divide by 0, go to the next step, and don't calculate k and l vals
                 if(std::isnan(v_dot(independent_step, dependent_step, dependent_prime_step)) || std::isinf(v_dot(independent_step, dependent_step, dependent_prime_step))){
@@ -207,13 +222,13 @@ class SecondOrderODE: public DiffEqn{
             double i1, i2, i3, i4, j1, j2, j3, j4;
 
             //have them start at the initial conditions, and work backwards to the independent_plot_starting_val
-            double independent_step = independent_initial;
-            double dependent_step = dependent_initial;
-            double independent_prime_step = independent_prime_initial;
-            double dependent_prime_step = dependent_prime_initial;
+            double independent_step = posInitialCondition.independent;
+            double dependent_step = posInitialCondition.dependent;
+            double independent_prime_step = velInitialCondition.independent;
+            double dependent_prime_step = velInitialCondition.dependent;
 
             //Define number of steps, and start estimating slopes at every step, give them a weighted average, and fill vectors so that one can plot predicted values
-            int m = (independent_initial - independent_plot_starting_val)/step_size;
+            int m = (posInitialCondition.independent - independent_plot_starting_val)/step_size;
             for(int j = 0; j < m; ++j){
                 //if we ever divide by 0, go to the next step, and don't calculate i and j vals
                 if(std::isnan(v_dot(independent_step, dependent_step, dependent_prime_step)) || std::isinf(v_dot(independent_step, dependent_step, dependent_prime_step))){
@@ -274,21 +289,6 @@ class HigherOrderODE: public DiffEqn{
         }
     
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

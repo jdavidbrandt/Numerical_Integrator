@@ -5,6 +5,14 @@
 	"build": {
 		"dockerfile": "Dockerfile"
 	},
+	"runArgs":[
+        "--device=/dev/dri:/dev/dri",
+        "--volume=${localEnv:XDG_RUNTIME_DIR}/${localEnv:WAYLAND_DISPLAY}:/tmp/wayland-0"],
+    "containerEnv": {
+        "XDG_RUNTIME_DIR": "/tmp",
+        "WAYLAND_DISPLAY": "wayland-0",
+        "QT_QPA_PLATFORM": "wayland;xcb"
+    },
 	"features": {
 		"ghcr.io/devcontainers-extra/features/apt-get-packages:1": {
 			"clean_ppas": true,

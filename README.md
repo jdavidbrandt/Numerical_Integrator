@@ -4,7 +4,9 @@ Numerical Integrator using Runge-Kutta Order 4.
 The first example is a First Order ODE
 
 $\large \cos({t}) \frac{dy}{dt} + \sin({t}) y = 2 \cos^3({t}) \sin({t}) - 1$ 
-with 
+
+with
+
 $\large y(\frac{\pi}{4}) = 3 \sqrt{2}$
 
 In main.cpp, one can see that the blue-dotted line is the actual solution, where as the green line is the Runge-Kutta 4 prediction

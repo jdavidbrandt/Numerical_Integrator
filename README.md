@@ -41,9 +41,9 @@ One can plot this in desmos with the following and compare to the graph below
 
 $\large J(a,t) = \sum_{m=0}^{100} \frac{(-1)^{m}}{m!(m+a)!} (\frac{x}{2})^{(2m + a)}$
 
-$\large J(0,t) {t > 0}$
+$\large J(0,t)$ ${t > 0}$
 
-$\large -J(1,t) {t > 0}$
+$\large -J(1,t)$ ${t > 0}$
 
 <img width="560" height="420" alt="bessel_solution" src="https://github.com/user-attachments/assets/e975234b-c258-411b-aa34-d857e0278218" />
 

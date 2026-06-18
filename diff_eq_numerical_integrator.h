@@ -149,7 +149,7 @@ class SecondOrderODE: public DiffEqn{
         InitialCondition posInitialCondition;
         InitialCondition velInitialCondition;
         std::vector<double> predicted_prime_rk4_independent_vals, predicted_prime_rk4_dependent_vals;
-
+        
         //Takes in an equation, y''=f(t,y,y'), and two InitialCondition, one for position, the other for velocity. the initializes all via initializer
         SecondOrderODE(std::function<double(double,double,double)> passed_equation, InitialCondition posCondition, InitialCondition velCondition)
             : v_dot(passed_equation),
@@ -164,6 +164,9 @@ class SecondOrderODE: public DiffEqn{
             predicted_rk4_dependent_vals.push_back(posCondition.dependent);
             predicted_prime_rk4_independent_vals.push_back(velCondition.independent);
             predicted_prime_rk4_dependent_vals.push_back(velCondition.dependent);
+
+
+            
         }
         
         //SecondOrderRK4Solve(double step_size, double independent_final)
@@ -178,6 +181,7 @@ class SecondOrderODE: public DiffEqn{
             double dependent_step = posInitialCondition.dependent;
             double independent_prime_step = velInitialCondition.independent;
             double dependent_prime_step = velInitialCondition.dependent;
+
 
             //Define number of steps, and start estimating slopes at every step, give them a weighted average, and fill vectors so that one can plot predicted values
             int n = (independent_final - posInitialCondition.independent)/step_size;
@@ -196,10 +200,16 @@ class SecondOrderODE: public DiffEqn{
                     l3 = step_size*v_dot(independent_step + 0.5*step_size, dependent_step + 0.5*step_size*k2, dependent_prime_step + 0.5*step_size*l2);
                     k4 = step_size*v(independent_step + step_size, dependent_step + step_size*k3, dependent_prime_step + step_size*l3);
                     l4 = step_size*v_dot(independent_step + step_size, dependent_step + step_size*k3, dependent_prime_step + step_size*l3);
+                    
+                
 
                     //increment
-                    independent_step += step_size;
-                    independent_prime_step += step_size;
+                    //independent_step += 0.001;
+                    //independent_prime_step += step_size;
+
+                    independent_step = posInitialCondition.independent + (i + 1)*step_size;
+                    independent_prime_step = velInitialCondition.independent + (i + 1)*step_size;
+
                     dependent_step += (k1 + 2*k2 + 2*k3 + k4)/6.0;
                     dependent_prime_step += (l1 + 2*l2 + 2*l3 + l4)/6.0;
 
@@ -271,6 +281,142 @@ class SecondOrderODE: public DiffEqn{
         
             
 };
+
+//Create a new class called SecondOrderCoupledODE that has two equations. Probably don't do inheritance as it would be confusing which equation is for which thing
+class CoupledSecondOrderODE{
+    public:
+        //x'' = f(t, x, y, x', y') and y'' = g(t, x, y, x', y')
+        //By convention, let's use f for x'' equation, and g for y'' equation
+        std::function<double(double,double,double,double,double)> vx_dot;
+        std::function<double(double,double,double,double,double)> vy_dot;
+        InitialCondition f_PositionIC;
+        InitialCondition f_VelocityIC;
+        InitialCondition g_PositionIC;
+        InitialCondition g_VelocityIC;
+
+        std::vector<double> f_independent_vals;
+        std::vector<double> f_dependent_vals;
+        std::vector<double> f_prime_independent_vals;
+        std::vector<double> f_prime_dependent_vals;
+        std::vector<double> g_independent_vals;
+        std::vector<double> g_dependent_vals;
+        std::vector<double> g_prime_independent_vals;
+        std::vector<double> g_prime_dependent_vals;
+
+        CoupledSecondOrderODE(std::function<double(double,double,double,double,double)> f,
+                              std::function<double(double,double,double,double,double)> g,
+                              InitialCondition f_PositionIC,
+                              InitialCondition f_VelocityIC,
+                              InitialCondition g_PositionIC,
+                              InitialCondition g_VelocityIC)
+                            : vx_dot(f),
+                            vy_dot(g),
+                            f_PositionIC(f_PositionIC),
+                            f_VelocityIC(f_VelocityIC),
+                            g_PositionIC(g_PositionIC),
+                            g_VelocityIC(g_VelocityIC)
+        {
+            f_independent_vals.push_back(f_PositionIC.independent);
+            f_dependent_vals.push_back(f_PositionIC.dependent);
+            f_prime_independent_vals.push_back(f_VelocityIC.independent);
+            f_prime_dependent_vals.push_back(f_VelocityIC.dependent);
+            g_independent_vals.push_back(g_PositionIC.independent);
+            g_dependent_vals.push_back(g_PositionIC.dependent);
+            g_prime_independent_vals.push_back(g_VelocityIC.independent);
+            g_prime_dependent_vals.push_back(g_VelocityIC.dependent);
+
+        };
+
+        void CoupledSecondOrderRK4Solve(double step_size, double independent_final){
+            std::function<double(double,double,double,double,double)> vx = [](double t, double x, double y, double x_dot, double y_dot){
+                return x_dot;
+            };
+
+            std::function<double(double,double,double,double,double)> vy = [](double t, double x, double y, double x_dot, double y_dot){
+                return y_dot;
+            };
+
+            double k1, k2, k3, k4, l1, l2, l3, l4, m1, m2, m3, m4, n1, n2, n3, n4;
+            double f_independent_step = f_PositionIC.independent;
+            double f_dependent_step = f_PositionIC.dependent;
+            double f_prime_independent_step = f_VelocityIC.independent;
+            double f_prime_dependent_step = f_VelocityIC.dependent;
+
+            double g_independent_step = g_PositionIC.independent;
+            double g_dependent_step = g_PositionIC.dependent;
+            double g_prime_independent_step = g_VelocityIC.independent;
+            double g_prime_dependent_step = g_VelocityIC.dependent;
+
+            int N = (independent_final - f_PositionIC.independent) / step_size;
+            
+            for(int i = 0; i < N; ++i){
+                //if we ever divide by 0, go to the next step and don't plot
+                if(std::isnan(vx_dot(f_independent_step, f_dependent_step, g_dependent_step,f_prime_dependent_step, g_prime_dependent_step)) || std::isinf(vx_dot(f_independent_step, f_dependent_step, g_dependent_step,f_prime_dependent_step, g_prime_dependent_step))){
+                    f_independent_step += step_size;
+                    f_prime_independent_step += step_size;
+                    g_independent_step += step_size;
+                    g_prime_independent_step += step_size;
+                }
+
+                if(std::isnan(vy_dot(f_independent_step, f_dependent_step, g_dependent_step,f_prime_dependent_step, g_prime_dependent_step)) || std::isinf(vy_dot(f_independent_step, f_dependent_step, g_dependent_step,f_prime_dependent_step, g_prime_dependent_step))){
+                    f_independent_step += step_size;
+                    f_prime_independent_step += step_size;
+                    g_independent_step += step_size;
+                    g_prime_independent_step += step_size;
+                }
+                
+
+
+                k1 = vx(f_independent_step, f_dependent_step, g_dependent_step, f_prime_dependent_step, g_prime_dependent_step)*step_size;
+                k2 = vy(g_independent_step, f_dependent_step, g_dependent_step, f_prime_dependent_step, g_prime_dependent_step)*step_size;
+                k3 = vx_dot(f_independent_step, f_dependent_step, g_dependent_step, f_prime_dependent_step, g_prime_dependent_step)*step_size;
+                k4 = vy_dot(f_independent_step, f_dependent_step, g_dependent_step, f_prime_dependent_step, g_prime_dependent_step)*step_size;
+
+                l1 = (vx(f_independent_step, f_dependent_step, g_dependent_step, f_prime_dependent_step, g_prime_dependent_step) + k3)*step_size;
+                l2 = (vy(f_independent_step, f_dependent_step, g_dependent_step, f_prime_dependent_step, g_prime_dependent_step) + k4)*step_size;
+                l3 = vx_dot(f_independent_step + 0.5*step_size, f_dependent_step + 0.5*k1, g_dependent_step + 0.5*k2, f_prime_dependent_step + 0.5*k3, g_prime_dependent_step + 0.5*k4)*step_size;
+                l4 = vy_dot(f_independent_step + 0.5*step_size, f_dependent_step + 0.5*k1, g_dependent_step + 0.5*k2, f_prime_dependent_step + 0.5*k3, g_prime_dependent_step + 0.5*k4)*step_size;
+
+                m1 = (vx(f_independent_step, f_dependent_step, g_dependent_step, f_prime_dependent_step, g_prime_dependent_step) + l3)*step_size;
+                m2 = (vy(f_independent_step, f_dependent_step, g_dependent_step, f_prime_dependent_step, g_prime_dependent_step) + l4)*step_size;
+                m3 = vx_dot(f_independent_step + 0.5*step_size, f_dependent_step + 0.5*l1, g_dependent_step + 0.5*l2, f_prime_dependent_step + 0.5*l3, g_prime_dependent_step + 0.5*l4)*step_size;
+                m4 = vy_dot(f_independent_step + 0.5*step_size, f_dependent_step + 0.5*l1, g_dependent_step + 0.5*l2, f_prime_dependent_step + 0.5*l3, g_prime_dependent_step + 0.5*l4)*step_size;
+
+                n1 = (vx(f_independent_step, f_dependent_step, g_dependent_step, f_prime_dependent_step, g_prime_dependent_step) + m3)*step_size;
+                n2 = (vy(f_independent_step, f_dependent_step, g_dependent_step, f_prime_dependent_step, g_prime_dependent_step) + m4)*step_size;
+                n3 = vx_dot(f_independent_step + 0.5*step_size, f_dependent_step + 0.5*m1, g_dependent_step + 0.5*m2, f_prime_dependent_step + 0.5*m3, g_prime_dependent_step + 0.5*m4)*step_size;
+                n4 = vy_dot(f_independent_step + 0.5*step_size, f_dependent_step + 0.5*m1, g_dependent_step + 0.5*m2, f_prime_dependent_step + 0.5*m3, g_prime_dependent_step + 0.5*m4)*step_size;
+
+                //increment
+                f_independent_step += step_size;
+                f_prime_independent_step += step_size;
+                g_independent_step += step_size;
+                g_prime_independent_step += step_size;
+
+                //Weighted Average
+                f_dependent_step += (k1 + 2*l1 + 2* m1 + n1)/6.0;
+                g_dependent_step += (k2 + 2*l2 + 2*m2 + n2)/6.0;
+                f_prime_dependent_step += (k3 + 2*l3 + 2*m3 + n3)/6.0;
+                g_prime_dependent_step += (k4 + 2*l4 + 2*m4 + n4)/6.0;
+
+                f_independent_vals.push_back(f_independent_step);
+                f_dependent_vals.push_back(f_dependent_step);
+                f_prime_independent_vals.push_back(f_prime_independent_step);
+                f_prime_dependent_vals.push_back(f_prime_dependent_step);
+
+                g_independent_vals.push_back(g_independent_step);
+                g_dependent_vals.push_back(g_dependent_step);
+                g_prime_independent_vals.push_back(g_prime_independent_step);
+                g_prime_dependent_vals.push_back(g_prime_dependent_step);
+
+
+
+            }
+        }
+
+
+};
+
 
 ////////
 //In Progress: Not Functional

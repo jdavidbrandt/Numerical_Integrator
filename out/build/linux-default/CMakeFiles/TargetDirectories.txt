@@ -1,3 +1,0 @@
-/workspaces/Numerical_Integrator/out/build/linux-default/CMakeFiles/plots.dir
-/workspaces/Numerical_Integrator/out/build/linux-default/CMakeFiles/edit_cache.dir
-/workspaces/Numerical_Integrator/out/build/linux-default/CMakeFiles/rebuild_cache.dir
